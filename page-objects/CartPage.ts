@@ -24,4 +24,10 @@ export class CartPage {
     const cartProductPrice = await this.page.locator('.inventory_item_price').innerText()
     return cartProductPrice
   }
+  async removeFirstProductFromCart() {
+    const removeButton = this.page.getByRole('button', { name: 'Remove' }).first()
+    await expect(removeButton).toBeVisible()
+    await removeButton.click()
+  }
+
 }

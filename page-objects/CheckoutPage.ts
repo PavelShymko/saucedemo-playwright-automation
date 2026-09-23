@@ -5,6 +5,12 @@ export class CheckoutPage {
     this.page = page
   }
 
+  async openCheckout() {
+    const checkoutButton = this.page.getByRole('button', { name: 'Checkout' })
+    await expect(checkoutButton).toBeVisible()
+    await checkoutButton.click()
+  }
+
   async fillCheckoutInformation(firstName: string, lastName: string, postalCode: string) {
     await this.page.getByPlaceholder('First Name').fill(firstName)
     await this.page.getByPlaceholder('Last Name').fill(lastName)

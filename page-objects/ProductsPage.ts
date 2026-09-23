@@ -16,7 +16,13 @@ export class ProductsPage {
     await productName.click()
   }
 
-  async addToCartFirstProduct() {
+  async openSecondProduct() {
+    const secondProduct = this.page.locator('.inventory_item').nth(1)
+    const productName = secondProduct.locator('.inventory_item_name')
+    await productName.click()
+  }
+
+  async addProductToCart() {
     await expect(this.page).toHaveURL(/inventory-item.html\?id=\d+/)
     const addToCartButton = this.page.getByRole('button', { name: 'Add to cart' })
     const removeButton = this.page.getByRole('button', { name: 'Remove' })
