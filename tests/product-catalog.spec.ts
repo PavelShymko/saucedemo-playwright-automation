@@ -83,9 +83,11 @@ test.describe('product details', () => {
 
   test('add to cart button works correctly', async ({ page, productsPage }) => {
     await productsPage.openFirstProduct()
-
     await expect(page).toHaveURL(/inventory-item.html\?id=\d+/)
     const addToCartButton = page.getByRole('button', { name: 'Add to cart' })
+    await expect(addToCartButton).toBeVisible()
+    await expect(addToCartButton).toBeEnabled()
+    
     await addToCartButton.click()
     await expect(addToCartButton).not.toBeVisible()
     await expect(page.getByRole('button', { name: 'Remove' })).toBeVisible()

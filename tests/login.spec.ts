@@ -12,7 +12,7 @@ test('login with valid credentials', async ({ page, loginPage }) => {
 })
 
 test('login with invalid credentials', async ({ page, loginPage }) => {
-  await loginPage.login(users.lockedOut.username, users.lockedOut.password)
+  await loginPage.login(users.invalidCredentials.username, users.invalidCredentials.password)
   await expect(
     page.getByText(
       'Epic sadface: Username and password do not match any user in this service',
