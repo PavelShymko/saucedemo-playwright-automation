@@ -1,5 +1,7 @@
 import { test, expect } from '../fixtures/test-fixtures'
 
+
+test.use({ launchOptions: { slowMo: 60 } })
 test.beforeEach(async ({ page }) => {
   await page.goto('/inventory.html/')
 })

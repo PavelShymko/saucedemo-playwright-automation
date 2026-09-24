@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "description": "UI test automation project using Playwright and TypeScript.",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "playwright test",
+    "test:chromium": "playwright test --project=chromium",
+    "test:api": "playwright test tests/api/users-api.spec.ts",
+    "report": "playwright show-report"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
