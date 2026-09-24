@@ -1,6 +1,4 @@
-import { test, expect } from '@playwright/test'
-import { ProductsPage } from '../page-objects/ProductsPage'
-
+import { test, expect } from '../fixtures/test-fixtures'
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/inventory.html/')
@@ -8,13 +6,11 @@ test.beforeEach(async ({ page }) => {
 
 test('product list is displayed correctly', async ({ page }) => {
   const products = page.locator('.inventory_item')
-
   await expect(products).toHaveCount(6)
   await expect(products.first()).toContainText('Sauce Labs Backpack')
 })
 
 test.describe('product sorting', () => {
-
   test('sort by price low → high', async ({ page }) => {
     await page.locator('.product_sort_container').selectOption('lohi') //price (low to high)
     const prices = page.locator('.inventory_item_price')
@@ -53,41 +49,45 @@ test.describe('product sorting', () => {
 })
 
 test.describe('product details', () => {
+  test('product details are displayed correctly', async ({ page }) => {
+    const firstProduct = page.locator('.inventory_item').first()
+    const productName = await firstProduct.locator('.inventory_item_name')
+    const productNameText = await productName.innerText()
+    const productPrice = await firstProduct
+      .locator('.inventory_item_price')
+      .innerText()
+    await productName.click()
 
-    test('product details are displayed correctly', async ({ page }) => {
-        const firstProduct = page.locator('.inventory_item').first()   
-        const productName = await firstProduct.locator('.inventory_item_name')
-        const productNameText = await productName.innerText()
-        const productPrice = await firstProduct.locator('.inventory_item_price').innerText()
-        await productName.click()
+    await expect(page).toHaveURL(/inventory-item.html\?id=\d+/)
+    await expect(page.locator('.inventory_details_name')).toHaveText(
+      productNameText,
+    )
+    await expect(page.locator('.inventory_details_price')).toHaveText(
+      productPrice,
+    )
+    await expect(page.locator('.inventory_details_desc')).toBeVisible()
+    await expect(page.locator('.inventory_details_img')).toBeVisible()
+    await expect(page.locator('.btn_inventory')).toBeVisible()
+  })
 
-        await expect(page).toHaveURL(/inventory-item.html\?id=\d+/)
-        await expect(page.locator('.inventory_details_name')).toHaveText(productNameText)
-        await expect(page.locator('.inventory_details_price')).toHaveText(productPrice)
-        await expect(page.locator('.inventory_details_desc')).toBeVisible()
-        await expect(page.locator('.inventory_details_img')).toBeVisible()
-        await expect(page.locator('.btn_inventory')).toBeVisible()
-    })
+  test('back button returns to product list', async ({
+    page,
+    productsPage,
+  }) => {
+    await productsPage.openFirstProduct()
 
-    test('back button returns to product list', async ({ page }) => {
-        const productsPage = new ProductsPage(page);
-        await productsPage.openFirstProduct()
+    await expect(page).toHaveURL(/inventory-item.html\?id=\d+/)
+    await page.getByRole('button', { name: 'Back to products' }).click()
+    await expect(page).toHaveURL(/inventory.html/)
+  })
 
-        await expect(page).toHaveURL(/inventory-item.html\?id=\d+/)
-        await page.getByRole('button', { name: 'Back to products' }).click()
-        await expect(page).toHaveURL(/inventory.html/)
-    })
+  test('add to cart button works correctly', async ({ page, productsPage }) => {
+    await productsPage.openFirstProduct()
 
-    test('add to cart button works correctly', async ({ page }) => {
-        const productsPage = new ProductsPage(page);
-        await productsPage.openFirstProduct()
-
-        await expect(page).toHaveURL(/inventory-item.html\?id=\d+/)
-        const addToCartButton = page.getByRole('button', { name: 'Add to cart' })
-        await addToCartButton.click()
-        await expect(addToCartButton).not.toBeVisible()
-        await expect(page.getByRole('button', { name: 'Remove' })).toBeVisible()
-        
-    })
-
+    await expect(page).toHaveURL(/inventory-item.html\?id=\d+/)
+    const addToCartButton = page.getByRole('button', { name: 'Add to cart' })
+    await addToCartButton.click()
+    await expect(addToCartButton).not.toBeVisible()
+    await expect(page.getByRole('button', { name: 'Remove' })).toBeVisible()
+  })
 })

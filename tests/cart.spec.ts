@@ -1,9 +1,4 @@
-import { test, expect } from '@playwright/test'
-import { ProductsPage } from '../page-objects/ProductsPage'
-import { LoginPage } from '../page-objects/LoginPage'
-import { Menu } from '../page-objects/menu'
-import { CartPage } from '../page-objects/CartPage'
-import { CheckoutPage } from '../page-objects/CheckoutPage'
+import { test, expect } from '../fixtures/test-fixtures'
 
 test.use({ launchOptions: { slowMo: 100 } })
 test.beforeEach(async ({ page }) => {
@@ -11,21 +6,21 @@ test.beforeEach(async ({ page }) => {
 })
 
 test.describe('cart functionality', () => {
-  test('add to cart button works correctly', async ({ page }) => {
-    const productsPage = new ProductsPage(page)
+  test('add to cart button works correctly', async ({ page, productsPage }) => {
     await productsPage.openFirstProduct()
     await productsPage.addProductToCart()
   })
 
-  test('remove from cart button works correctly', async ({ page }) => {
-    const productsPage = new ProductsPage(page)
+  test('remove from cart button works correctly', async ({
+    page,
+    productsPage,
+  }) => {
     await productsPage.openFirstProduct()
     await productsPage.addProductToCart()
     await productsPage.removeFromCartFirstProduct()
   })
 
-  test('cart counter updates correctly', async ({ page }) => {
-    const productsPage = new ProductsPage(page)
+  test('cart counter updates correctly', async ({ page, productsPage }) => {
     await productsPage.openFirstProduct()
     await productsPage.addProductToCart()
     const cartCounter = page.locator('.shopping_cart_badge')
@@ -34,8 +29,10 @@ test.describe('cart functionality', () => {
     await expect(cartCounter).not.toBeVisible()
   })
 
-  test('cart contains correct product and price', async ({ page }) => {
-    const productsPage = new ProductsPage(page)
+  test('cart contains correct product and price', async ({
+    page,
+    productsPage,
+  }) => {
     await productsPage.openFirstProduct()
     const productName = await page
       .locator('.inventory_details_name')
@@ -55,8 +52,10 @@ test.describe('cart functionality', () => {
     expect(cartProductPrice).toBe(productPrice)
   })
 
-  test('cart retains products after page reload', async ({ page }) => {
-    const productsPage = new ProductsPage(page)
+  test('cart retains products after page reload', async ({
+    page,
+    productsPage,
+  }) => {
     await productsPage.openFirstProduct()
     await productsPage.addProductToCart()
     await page.reload()
@@ -66,9 +65,9 @@ test.describe('cart functionality', () => {
 
   test('cart retains products after navigating away and back', async ({
     page,
+    productsPage,
+    cartPage,
   }) => {
-    const productsPage = new ProductsPage(page)
-    const cartPage = new CartPage(page)
     await productsPage.openFirstProduct()
     await productsPage.addProductToCart()
     await page.goto('/inventory.html/')
@@ -79,10 +78,10 @@ test.describe('cart functionality', () => {
 
   test('cart retains products after logging out and back in', async ({
     page,
+    loginPage,
+    productsPage,
+    menu,
   }) => {
-    const loginPage = new LoginPage(page)
-    const productsPage = new ProductsPage(page)
-    const menu = new Menu(page)
     await productsPage.openFirstProduct()
     await productsPage.addProductToCart()
     await menu.logout()
@@ -91,10 +90,12 @@ test.describe('cart functionality', () => {
     await expect(cartCounter).toHaveText('1')
   })
 
-  test('cart is cleared after checkout', async ({ page }) => {
-    const productsPage = new ProductsPage(page)
-    const cartPage = new CartPage(page)
-    const checkoutPage = new CheckoutPage(page)
+  test('cart is cleared after checkout', async ({
+    page,
+    productsPage,
+    cartPage,
+    checkoutPage,
+  }) => {
     await productsPage.openFirstProduct()
     await productsPage.addProductToCart()
     await cartPage.openCart()
@@ -104,9 +105,11 @@ test.describe('cart functionality', () => {
     const cartCounter = page.locator('.shopping_cart_badge')
     await expect(cartCounter).not.toBeVisible()
   })
-  test('continue shopping button returns to product list', async ({ page }) => {
-    const productsPage = new ProductsPage(page)
-    const cartPage = new CartPage(page)
+  test('continue shopping button returns to product list', async ({
+    page,
+    productsPage,
+    cartPage,
+  }) => {
     await productsPage.openFirstProduct()
     await productsPage.addProductToCart()
     await cartPage.openCart()
@@ -114,20 +117,24 @@ test.describe('cart functionality', () => {
     await expect(page).toHaveURL(/inventory.html/)
   })
 
-  test('remove one product from cart and complete purchase successfully', async ({ page }) => {
-        const productsPage = new ProductsPage(page);
-        const cartPage = new CartPage(page);
-        const checkoutPage = new CheckoutPage(page);
-        await productsPage.openFirstProduct()
-        await productsPage.addProductToCart()
-        await page.goto('/inventory.html/')
-        await productsPage.openSecondProduct()
-        await productsPage.addProductToCart()
-        await cartPage.openCart()
-        await cartPage.removeFirstProductFromCart()
-        await checkoutPage.openCheckout()
-        await checkoutPage.fillCheckoutInformation('John', 'Doe', '12345')
-        await checkoutPage.finishCheckout()
-        await expect(page.locator('.complete-header')).toHaveText('Thank you for your order!')
-    })
+  test('remove one product from cart and complete purchase successfully', async ({
+    page,
+    productsPage,
+    cartPage,
+    checkoutPage,
+  }) => {
+    await productsPage.openFirstProduct()
+    await productsPage.addProductToCart()
+    await page.goto('/inventory.html/')
+    await productsPage.openSecondProduct()
+    await productsPage.addProductToCart()
+    await cartPage.openCart()
+    await cartPage.removeFirstProductFromCart()
+    await checkoutPage.openCheckout()
+    await checkoutPage.fillCheckoutInformation('John', 'Doe', '12345')
+    await checkoutPage.finishCheckout()
+    await expect(page.locator('.complete-header')).toHaveText(
+      'Thank you for your order!',
+    )
+  })
 })
