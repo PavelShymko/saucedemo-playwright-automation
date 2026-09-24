@@ -1,0 +1,5 @@
+export const validCustomer = {
+    firstName: 'John',
+    lastName: 'Doe',
+    postalCode: '12345',
+};

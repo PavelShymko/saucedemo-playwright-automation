@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/test-fixtures'
+import {validCustomer} from '../test-data/checkout'
 
 test.use({ launchOptions: { slowMo: 60 } })
 test.beforeEach(async ({ page }) => {
@@ -18,7 +19,7 @@ test('fill checkout information and finish checkout', async ({
 }) => {
   await cartPage.openCart()
   await checkoutPage.openCheckout()
-  await checkoutPage.fillCheckoutInformation('John', 'Doe', '12345')
+  await checkoutPage.fillCheckoutInformation(validCustomer.firstName, validCustomer.lastName, validCustomer.postalCode)
   await checkoutPage.finishCheckout()
   await expect(page).toHaveURL(/checkout-complete.html/)
 })
@@ -41,7 +42,7 @@ test('checkout information is required - last name', async ({
 }) => {
   await cartPage.openCart()
   await checkoutPage.openCheckout()
-  await checkoutPage.fillCheckoutInformation('John', '', '12345')
+  await checkoutPage.fillCheckoutInformation(validCustomer.firstName, '', validCustomer.postalCode)
   await expect(page.getByText('Error: Last Name is required')).toBeVisible()
 })
 
@@ -52,7 +53,7 @@ test('checkout information is required - postal code', async ({
 }) => {
   await cartPage.openCart()
   await checkoutPage.openCheckout()
-  await checkoutPage.fillCheckoutInformation('John', 'Doe', '')
+  await checkoutPage.fillCheckoutInformation(validCustomer.firstName, validCustomer.lastName, '')
   await expect(page.getByText('Error: Postal Code is required')).toBeVisible()
 })
 
@@ -63,7 +64,7 @@ test('checkout information is required - first name', async ({
 }) => {
   await cartPage.openCart()
   await checkoutPage.openCheckout()
-  await checkoutPage.fillCheckoutInformation('', 'Doe', '12345')
+  await checkoutPage.fillCheckoutInformation('', validCustomer.lastName, validCustomer.postalCode)
   await expect(page.getByText('Error: First Name is required')).toBeVisible()
 })
 
@@ -99,6 +100,7 @@ test('display correct product information on checkout page', async ({
   expect(checkoutProductName).toBe(productName)
   expect(checkoutProductPrice).toBe(productPrice)
 })
+
 test('display correct product information on checkout overview page', async ({
   page,
   productsPage,
@@ -113,7 +115,7 @@ test('display correct product information on checkout overview page', async ({
   await productsPage.addProductToCart()
   await cartPage.openCart()
   await checkoutPage.openCheckout()
-  await checkoutPage.fillCheckoutInformation('John', 'Doe', '12345')
+  await checkoutPage.fillCheckoutInformation(validCustomer.firstName, validCustomer.lastName, validCustomer.postalCode)
   const overviewProductName = await page
     .locator('.inventory_item_name')
     .innerText()
@@ -134,7 +136,7 @@ test('complete purchase successfully', async ({
   await productsPage.addProductToCart()
   await cartPage.openCart()
   await checkoutPage.openCheckout()
-  await checkoutPage.fillCheckoutInformation('John', 'Doe', '12345')
+  await checkoutPage.fillCheckoutInformation(validCustomer.firstName, validCustomer.lastName, validCustomer.postalCode)
   await checkoutPage.finishCheckout()
   await expect(page.locator('.complete-header')).toHaveText(
     'Thank you for your order!',
@@ -154,7 +156,7 @@ test('add two products to cart and complete purchase successfully', async ({
   await productsPage.addProductToCart()
   await cartPage.openCart()
   await checkoutPage.openCheckout()
-  await checkoutPage.fillCheckoutInformation('John', 'Doe', '12345')
+  await checkoutPage.fillCheckoutInformation(validCustomer.firstName, validCustomer.lastName, validCustomer.postalCode)
   await checkoutPage.finishCheckout()
   await expect(page.locator('.complete-header')).toHaveText(
     'Thank you for your order!',
